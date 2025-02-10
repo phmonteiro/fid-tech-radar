@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - contract-maker-vite
+name: Build and deploy Node.js app to Azure Web App - fid-tech-radar
 
 # Run the workflow whenever change is pushed into the main branch
 on:
@@ -33,7 +33,7 @@ jobs:
          # Other scripts if configured should be added here, such as linting, formating
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: node-app
           path: dist # This should be your distribution path, not the root path
