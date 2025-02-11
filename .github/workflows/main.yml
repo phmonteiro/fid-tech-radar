@@ -1,79 +1,43 @@
-name: Build and deploy Vite app to Azure Web App
+name: Deploy ViteJS App to Azure
 
-# Trigger on pushes to main branch or manual workflow dispatch
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-
-# Environment variables used across jobs
-env:
-  VITE_APP_NAME: fid-tech-radar
-  NODE_VERSION: '22.x'
-  APP_NAME: 'fid-tech-radar'
-  ARTIFACT_NAME: 'vite-app'
-  BUILD_OUTPUT_PATH: 'dist'
 
 jobs:
-  build:
-    name: Build Application
+  build-and-deploy:
     runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci  # Using 'npm ci' instead of 'npm install' for more reliable builds
-
-      - name: Build application
-        run: npm run build
-        env:
-          VITE_APP_NAME: ${{ env.VITE_APP_NAME }}
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.BUILD_OUTPUT_PATH }}
-          retention-days: 5  # Specify how long to keep the artifact
-
-  deploy:
-    name: Deploy to Azure
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.BUILD_OUTPUT_PATH }}
+    # Checkout the repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'fid-tech-radar'
-          slot-name: 'production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: dist
+    # Setup Node.js environment
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: 'npm'
 
-      - name: Post-deployment status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" = "success" ]; then
-            echo "🚀 Deployment successful!"
-          else
-            echo "❌ Deployment failed"
-          fi
+    # Install dependencies
+    - name: Install Dependencies
+      run: npm install
+
+    # Build the ViteJS app
+    - name: Build Project
+      run: npm run build
+
+    # Zip the build folder
+    - name: Zip Build Folder
+      run: zip -r build.zip ./dist
+
+    # Deploy to Azure Web App
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: fid-tech-radar
+        slot-name: 'production' # Use the slot name if applicable, otherwise keep as 'production'
+        publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+        package: ./build.zip
