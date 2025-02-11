@@ -64,10 +64,10 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.APP_NAME }}
-          slot-name: 'Production'
+          app-name: 'fid-tech-radar'
+          slot-name: 'production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
-          package: ${{ env.BUILD_OUTPUT_PATH }}
+          package: dist
 
       - name: Post-deployment status
         if: always()
