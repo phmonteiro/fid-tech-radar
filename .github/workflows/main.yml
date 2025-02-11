@@ -1,43 +1,43 @@
-name: Deploy ViteJS App to Azure
+# File: .github/workflows/workflow.yml
+name: JavaScript CI
 
 on:
   push:
     branches:
-      - main
+      - main  # Change this to your default branch if needed
+
+env:
+  AZURE_WEBAPP_NAME: fid-tech-radar  # Set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: '.'     # Set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '22.x'               # Set this to the node version to use
 
 jobs:
   build-and-deploy:
+    name: Build and Deploy
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the repository
-    - name: Checkout Code
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    # Setup Node.js environment
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
       with:
-        node-version: 22
-        cache: 'npm'
+        node-version: ${{ env.NODE_VERSION }}
 
-    # Install dependencies
-    - name: Install Dependencies
-      run: npm install
+    - name: npm install, build, and test
+      run: |
+        npm install
+        npm run build --if-present
+        npm run test --if-present
+      working-directory: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
-    # Build the ViteJS app
-    - name: Build Project
-      run: npm run build
+    - name: Zip application
+      run: zip -r build.zip .
 
-    # Zip the build folder
-    - name: Zip Build Folder
-      run: zip -r build.zip ./dist
-
-    # Deploy to Azure Web App
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
+    - name: Deploy to Azure WebApp
+      uses: azure/webapps-deploy@v3
       with:
-        app-name: fid-tech-radar
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
         package: ./build.zip
-        slot-name: production
