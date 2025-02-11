@@ -19,7 +19,7 @@ jobs:
       - name: 'Set up Node.js'
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Replace with your Node.js version
+          node-version: '22'  # Replace with your Node.js version
 
       # Install dependencies and build the app
       - name: 'Install dependencies'
