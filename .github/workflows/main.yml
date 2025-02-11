@@ -9,9 +9,9 @@ on:
 
 # Environment variables used across jobs
 env:
-  VITE_APP_NAME: test-medium
+  VITE_APP_NAME: fid-tech-radar
   NODE_VERSION: '22.x'
-  APP_NAME: 'test-medium'
+  APP_NAME: 'fid-tech-radar'
   ARTIFACT_NAME: 'vite-app'
   BUILD_OUTPUT_PATH: 'dist'
 
